@@ -1,15 +1,14 @@
 version: '2.2'
 services:
-  elasticsearch-workshop-1:
+  elasticsearch-master-1:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
-    container_name: elasticsearch-workshop-1
+    container_name: elasticsearch-master-1
     environment:
       - cluster.name=cluster-walter # Sets cluster name
-      - node.name=master1 # Sets node name
-      - node.roles=master # Sets role name
+      - node.name=elasticsearch-master-1 # Sets node name
       - network.host=0.0.0.0 # Sets binding ip for all
-      - discovery.seed_hosts=master2
-      - cluster.initial_master_nodes=master1, master2
+      - discovery.seed_hosts=elasticsearch-master-2,elasticsearch-data-1,elasticsearch-data-2,elasticsearch-data-3,elasticsearch-ingest-1
+      - cluster.initial_master_nodes=elasticsearch-master-1, elasticsearch-master-2 # Node names for eligible master nodes
       - xpack.security.enabled=false # Disables xpack security
       - xpack.watcher.enabled=false # Disables xpack monitoring
       - xpack.ml.enabled=false # Disables xpack watcher
@@ -21,132 +20,135 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - /Users/walterroaserrano/Desktop/elasticsearch_cluster/data1:/usr/share/elasticsearch/data
+      - data01:/usr/share/elasticsearch/data
     ports:
-      - 9201:9200      
+      - 9200:9200      
     networks:
       - elastic
 
-  elasticsearch-workshop-2:
-      image: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
-      container_name: elasticsearch-workshop-2
-      environment:
-        - cluster.name=cluster-walter # Sets cluster name
-        - node.name=master2 # Sets node name
-        - node.roles=master # Sets role name
-        - network.host=0.0.0.0 # Sets binding ip for all
-        - discovery.seed_hosts=master1
-        - cluster.initial_master_nodes=master1, master2
-        - xpack.security.enabled=false # Disables xpack security
-        - xpack.watcher.enabled=false # Disables xpack monitoring
-        - xpack.ml.enabled=false # Disables xpack watcher
-        - xpack.ml.enabled-false # Disables xpack machine learning
-        - bootstrap.memory_lock=true # Disables memory swap
-        - ES_JAVA_OPTS=-Xms750m -Xmx750m # Sets allocated memory
-      ulimits:
-        memlock:
-          soft: -1
-          hard: -1
-      volumes:
-        - /Users/walterroaserrano/Desktop/elasticsearch_cluster/data2:/usr/share/elasticsearch/data     
-      networks:
-        - elastic
+  elasticsearch-master-2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
+    container_name: elasticsearch-master-2
+    environment:
+      - cluster.name=cluster-walter # Sets cluster name
+      - node.name=elasticsearch-master-2 # Sets node name
+      - network.host=0.0.0.0 # Sets binding ip for all
+      - discovery.seed_hosts=elasticsearch-master-1,elasticsearch-data-1,elasticsearch-data-2,elasticsearch-data-3,elasticsearch-ingest-1
+      - cluster.initial_master_nodes=elasticsearch-master-1, elasticsearch-master-2
+      - xpack.security.enabled=false # Disables xpack security
+      - xpack.watcher.enabled=false # Disables xpack monitoring
+      - xpack.ml.enabled=false # Disables xpack watcher
+      - xpack.ml.enabled-false # Disables xpack machine learning
+      - bootstrap.memory_lock=true # Disables memory swap
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m # Sets allocated memory
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data02:/usr/share/elasticsearch/data     
+    networks:
+      - elastic
 
-  elasticsearch-workshop-3:
-      image: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
-      container_name: elasticsearch-workshop-3
-      environment:
-        - cluster.name=cluster-walter # Sets cluster name
-        - node.name=data1 # Sets node name
-        - node.roles=data # Sets role name
-        - network.host=0.0.0.0 # Sets binding ip for all
-        - cluster.initial_master_nodes=master1, master2
-        - xpack.security.enabled=false # Disables xpack security
-        - xpack.watcher.enabled=false # Disables xpack monitoring
-        - xpack.ml.enabled=false # Disables xpack watcher
-        - xpack.ml.enabled-false # Disables xpack machine learning
-        - bootstrap.memory_lock=true # Disables memory swap
-        - ES_JAVA_OPTS=-Xms750m -Xmx750m # Sets allocated memory
-      ulimits:
-        memlock:
-          soft: -1
-          hard: -1
-      volumes:
-        - /Users/walterroaserrano/Desktop/elasticsearch_cluster/data3:/usr/share/elasticsearch/data     
-      networks:
-        - elastic    
+  elasticsearch-data-1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
+    container_name: elasticsearch-data-1
+    environment:
+      - cluster.name=cluster-walter # Sets cluster name
+      - node.name=elasticsearch-data-1 # Sets node name
+      - node.roles=data # Sets role name
+      - network.host=0.0.0.0 # Sets binding ip for all
+      - discovery.seed_hosts=elasticsearch-master-1,elasticsearch-master-2,elasticsearch-data-2,elasticsearch-data-3,elasticsearch-ingest-1
+      - cluster.initial_master_nodes=elasticsearch-master-1, elasticsearch-master-2
+      - xpack.security.enabled=false # Disables xpack security
+      - xpack.watcher.enabled=false # Disables xpack monitoring
+      - xpack.ml.enabled=false # Disables xpack watcher
+      - xpack.ml.enabled-false # Disables xpack machine learning
+      - bootstrap.memory_lock=true # Disables memory swap
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m # Sets allocated memory
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data03:/usr/share/elasticsearch/data     
+    networks:
+      - elastic    
 
-  elasticsearch-workshop-4:
-      image: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
-      container_name: elasticsearch-workshop-4
-      environment:
-        - cluster.name=cluster-walter # Sets cluster name
-        - node.name=data2 # Sets node name
-        - node.roles=data # Sets role name
-        - network.host=0.0.0.0 # Sets binding ip for all
-        - cluster.initial_master_nodes=master1, master2
-        - xpack.security.enabled=false # Disables xpack security
-        - xpack.watcher.enabled=false # Disables xpack monitoring
-        - xpack.ml.enabled=false # Disables xpack watcher
-        - xpack.ml.enabled-false # Disables xpack machine learning
-        - bootstrap.memory_lock=true # Disables memory swap
-        - ES_JAVA_OPTS=-Xms750m -Xmx750m # Sets allocated memory
-      ulimits:
-        memlock:
-          soft: -1
-          hard: -1
-      volumes:
-        - /Users/walterroaserrano/Desktop/elasticsearch_cluster/data4:/usr/share/elasticsearch/data     
-      networks:
-        - elastic
+  elasticsearch-data-2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
+    container_name: elasticsearch-data-2
+    environment:
+      - cluster.name=cluster-walter # Sets cluster name
+      - node.name=elasticsearch-data-2 # Sets node name
+      - node.roles=data # Sets role name
+      - network.host=0.0.0.0 # Sets binding ip for all
+      - discovery.seed_hosts=elasticsearch-master-1,elasticsearch-master-2,elasticsearch-data-1,elasticsearch-data-3,elasticsearch-ingest-1
+      - cluster.initial_master_nodes=elasticsearch-master-1, elasticsearch-master-2
+      - xpack.security.enabled=false # Disables xpack security
+      - xpack.watcher.enabled=false # Disables xpack monitoring
+      - xpack.ml.enabled=false # Disables xpack watcher
+      - xpack.ml.enabled-false # Disables xpack machine learning
+      - bootstrap.memory_lock=true # Disables memory swap
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m # Sets allocated memory
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data04:/usr/share/elasticsearch/data
+    networks:
+      - elastic
 
-  elasticsearch-workshop-5:
-      image: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
-      container_name: elasticsearch-workshop-5
-      environment:
-        - cluster.name=cluster-walter # Sets cluster name
-        - node.name=data3 # Sets node name
-        - node.roles=data # Sets role name
-        - network.host=0.0.0.0 # Sets binding ip for all
-        - cluster.initial_master_nodes=master1, master2
-        - xpack.security.enabled=false # Disables xpack security
-        - xpack.watcher.enabled=false # Disables xpack monitoring
-        - xpack.ml.enabled=false # Disables xpack watcher
-        - xpack.ml.enabled-false # Disables xpack machine learning
-        - bootstrap.memory_lock=true # Disables memory swap
-        - ES_JAVA_OPTS=-Xms750m -Xmx750m # Sets allocated memory
-      ulimits:
-        memlock:
-          soft: -1
-          hard: -1
-      volumes:
-        - /Users/walterroaserrano/Desktop/elasticsearch_cluster/data5:/usr/share/elasticsearch/data     
-      networks:
-        - elastic
+  elasticsearch-data-3:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
+    container_name: elasticsearch-data-3
+    environment:
+      - cluster.name=cluster-walter # Sets cluster name
+      - node.name=elasticsearch-data-3 # Sets node name
+      - node.roles=data # Sets role name
+      - network.host=0.0.0.0 # Sets binding ip for all
+      - discovery.seed_hosts=elasticsearch-master-1,elasticsearch-master-2,elasticsearch-data-1,elasticsearch-data-2,elasticsearch-ingest-1
+      - cluster.initial_master_nodes=elasticsearch-master-1, elasticsearch-master-2
+      - xpack.security.enabled=false # Disables xpack security
+      - xpack.watcher.enabled=false # Disables xpack monitoring
+      - xpack.ml.enabled=false # Disables xpack watcher
+      - xpack.ml.enabled-false # Disables xpack machine learning
+      - bootstrap.memory_lock=true # Disables memory swap
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m # Sets allocated memory
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data05:/usr/share/elasticsearch/data
+    networks:
+      - elastic
 
-  elasticsearch-workshop-6:
-      image: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
-      container_name: elasticsearch-workshop-6
-      environment:
-        - cluster.name=cluster-walter # Sets cluster name
-        - node.name=ingest1 # Sets node name
-        - node.roles=ingest # Sets role name
-        - network.host=0.0.0.0 # Sets binding ip for all
-        - cluster.initial_master_nodes=master1, master2
-        - xpack.security.enabled=false # Disables xpack security
-        - xpack.watcher.enabled=false # Disables xpack monitoring
-        - xpack.ml.enabled=false # Disables xpack watcher
-        - xpack.ml.enabled-false # Disables xpack machine learning
-        - bootstrap.memory_lock=true # Disables memory swap
-        - ES_JAVA_OPTS=-Xms750m -Xmx750m # Sets allocated memory
-      ulimits:
-        memlock:
-          soft: -1
-          hard: -1
-      volumes:
-        - /Users/walterroaserrano/Desktop/elasticsearch_cluster/data6:/usr/share/elasticsearch/data     
-      networks:
-        - elastic
+  elasticsearch-ingest-1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
+    container_name: elasticsearch-ingest-1
+    environment:
+      - cluster.name=cluster-walter # Sets cluster name
+      - node.name=elasticsearch-ingest-1 # Sets node name
+      - node.roles=ingest # Sets role name
+      - network.host=0.0.0.0 # Sets binding ip for all
+      - discovery.seed_hosts=elasticsearch-master-1,elasticsearch-master-2,elasticsearch-data-1,elasticsearch-data-2,elasticsearch-data-3
+      - cluster.initial_master_nodes=elasticsearch-master-1, elasticsearch-master-2
+      - xpack.security.enabled=false # Disables xpack security
+      - xpack.watcher.enabled=false # Disables xpack monitoring
+      - xpack.ml.enabled=false # Disables xpack watcher
+      - xpack.ml.enabled-false # Disables xpack machine learning
+      - bootstrap.memory_lock=true # Disables memory swap
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m # Sets allocated memory
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data06:/usr/share/elasticsearch/data
+    networks:
+      - elastic
 
   kib01:
     image: docker.elastic.co/kibana/kibana:7.16.3
@@ -154,12 +156,26 @@ services:
     ports:
       - 5601:5601
     depends_on:
-      - "elasticsearch-workshop-1"
+      - "elasticsearch-master-1"
     environment:
-      ELASTICSEARCH_URL: http://elasticsearch-workshop-1:9201
-      ELASTICSEARCH_HOSTS: '["http://elasticsearch-workshop-1:9201"]'
+      ELASTICSEARCH_URL: http://elasticsearch-master-1:9200
+      ELASTICSEARCH_HOSTS: '["http://elasticsearch-master-1:9200","http://elasticsearch-master-2:9200"]'
     networks:
       - elastic
+
+volumes:
+  data01:
+    driver: local
+  data02:
+    driver: local
+  data03:
+    driver: local
+  data04:
+    driver: local
+  data05:
+    driver: local
+  data06:
+    driver: local
 
 networks:
   elastic:
